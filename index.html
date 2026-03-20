@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SIM Club — EE Interview Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0a0f1e;--navy2:#111827;--panel:#151c2e;--border:#1e2d47;--border2:#2a3d5a;--accent:#00d4ff;--accent2:#0099cc;--green:#00e5a0;--amber:#ffb347;--red:#ff5a5a;--text:#e8edf5;--text2:#8899bb;--text3:#4a5a78;--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--navy);color:var(--text);font-family:var(--sans)}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.08) 2px,rgba(0,0,0,.08) 4px);pointer-events:none;z-index:999}
+.app{min-height:100vh;display:flex;flex-direction:column}
+header{border-bottom:1px solid var(--border);padding:0 2rem;height:56px;display:flex;align-items:center;justify-content:space-between;background:var(--navy);position:sticky;top:0;z-index:10}
+.logo{font-family:var(--mono);font-size:13px;font-weight:600;color:var(--accent);letter-spacing:.08em;display:flex;align-items:center;gap:10px}
+.logo-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.header-right{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:.06em}
+main{flex:1;padding:2rem;max-width:860px;margin:0 auto;width:100%}
+.screen{display:none;animation:fadeIn .25s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.section-label{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;margin-bottom:1.5rem;display:flex;align-items:center;gap:8px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+h1{font-size:26px;font-weight:300;color:var(--text);margin-bottom:.3rem;letter-spacing:-.01em}
+h2{font-size:18px;font-weight:500;color:var(--text);margin-bottom:1.25rem}
+.subtitle{font-size:14px;color:var(--text2);margin-bottom:2rem}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:1.5rem;margin-bottom:1.25rem}
+.card-sm{padding:1rem 1.25rem}
+.field{margin-bottom:1rem}
+.field-label{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--text2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px}
+input,select,textarea{width:100%;background:var(--navy2);border:1px solid var(--border2);border-radius:4px;padding:10px 12px;font-family:var(--sans);font-size:14px;color:var(--text);outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(0,153,204,.12)}
+select option{background:var(--navy2)}
+textarea{resize:vertical;min-height:72px;line-height:1.6}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+button{font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;border-radius:4px;border:1px solid var(--border2);background:transparent;color:var(--text);padding:10px 20px;transition:all .15s;letter-spacing:.01em}
+button:hover{border-color:var(--accent2);color:var(--accent)}
+button:active{transform:scale(.98)}
+.btn-primary{background:var(--accent);color:var(--navy);border-color:var(--accent);font-weight:600}
+.btn-primary:hover{background:var(--accent2);border-color:var(--accent2);color:var(--navy)}
+.btn-sm{font-size:13px;padding:7px 14px}
+.btn-ghost{border-color:transparent;color:var(--text2)}
+.btn-ghost:hover{border-color:var(--border2);color:var(--text)}
+.progress-track{height:2px;background:var(--border);border-radius:1px;margin-bottom:2rem;overflow:hidden}
+.progress-fill{height:100%;background:var(--accent);border-radius:1px;transition:width .4s ease}
+.q-meta{display:flex;align-items:center;gap:10px;margin-bottom:.75rem}
+.q-num{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.q-tag{font-family:var(--mono);font-size:10px;font-weight:600;padding:3px 10px;border-radius:3px;border:1px solid;letter-spacing:.06em;text-transform:uppercase}
+.tag-ee{border-color:rgba(0,212,255,.3);color:var(--accent);background:rgba(0,212,255,.06)}
+.tag-pcb{border-color:rgba(0,229,160,.3);color:var(--green);background:rgba(0,229,160,.06)}
+.tag-me{border-color:rgba(255,179,71,.3);color:var(--amber);background:rgba(255,179,71,.06)}
+.tag-team{border-color:rgba(138,100,255,.3);color:#a875ff;background:rgba(138,100,255,.06)}
+.tag-sys{border-color:rgba(255,90,90,.3);color:var(--red);background:rgba(255,90,90,.06)}
+.q-text{font-size:16px;font-weight:400;line-height:1.65;color:var(--text);margin-bottom:1.25rem}
+.expected-toggle{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:.75rem 1rem;background:var(--navy2);border:1px solid var(--border);border-radius:4px;margin-bottom:1rem;transition:border-color .15s}
+.expected-toggle:hover{border-color:var(--border2)}
+.toggle-arrow{font-family:var(--mono);font-size:12px;color:var(--accent);transition:transform .2s}
+.toggle-arrow.open{transform:rotate(90deg)}
+.toggle-label{font-family:var(--mono);font-size:11px;font-weight:500;color:var(--text2);letter-spacing:.06em;text-transform:uppercase}
+.expected-body{display:none;margin-bottom:1rem;padding:.75rem 1rem;background:rgba(0,229,160,.04);border:1px solid rgba(0,229,160,.15);border-radius:4px}
+.expected-body.open{display:block}
+.bullet{font-size:13px;color:var(--text2);line-height:1.7;padding:2px 0 2px 1.2rem;position:relative}
+.bullet::before{content:'›';position:absolute;left:0;color:var(--green);font-weight:600}
+.score-label{font-family:var(--mono);font-size:11px;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.6rem}
+.stars{display:flex;gap:8px;margin-bottom:1.25rem}
+.star{width:44px;height:44px;border-radius:4px;border:1px solid var(--border2);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;gap:2px}
+.star-num{font-family:var(--mono);font-size:15px;font-weight:600;color:var(--text2)}
+.star-desc{font-size:9px;color:var(--text3);text-align:center;line-height:1.2}
+.star:hover{border-color:var(--accent2);background:rgba(0,153,204,.08)}
+.star:hover .star-num{color:var(--accent)}
+.star.active{border-color:var(--accent);background:rgba(0,212,255,.1)}
+.star.active .star-num{color:var(--accent)}
+.star.active .star-desc{color:var(--accent2)}
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:.5rem}
+.nav-center{font-family:var(--mono);font-size:12px;color:var(--text3)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem}
+.metric{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:1rem;text-align:center}
+.metric-val{font-family:var(--mono);font-size:24px;font-weight:600;margin-bottom:4px}
+.metric-val.accent{color:var(--accent)}.metric-val.green{color:var(--green)}.metric-val.amber{color:var(--amber)}
+.metric-lbl{font-size:12px;color:var(--text3)}
+.q-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.q-row:last-child{border-bottom:none}
+.score-badge{width:32px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:600;flex-shrink:0}
+.sb-0{background:var(--border);color:var(--text3)}.sb-1,.sb-2{background:rgba(255,90,90,.15);color:var(--red)}.sb-3{background:rgba(255,179,71,.15);color:var(--amber)}.sb-4,.sb-5{background:rgba(0,229,160,.15);color:var(--green)}
+.q-row-text{font-size:13px;color:var(--text2);line-height:1.5;flex:1}
+.q-row-note{font-size:12px;color:var(--text3);margin-top:3px;font-style:italic}
+.q-row-section{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em}
+.decision-row{display:flex;align-items:center;gap:12px;margin-bottom:1rem}
+.decision-row label{font-family:var(--mono);font-size:11px;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.decision-row select{max-width:160px}
+.copy-box{font-family:var(--mono);font-size:11px;background:var(--navy2);border:1px solid var(--border);border-radius:4px;padding:1rem;white-space:pre-wrap;word-break:break-all;line-height:1.8;margin-bottom:.75rem;color:var(--green)}
+.copy-hint{font-size:12px;color:var(--text3);line-height:1.6}
+.copy-banner{background:rgba(0,229,160,.06);border:1px solid rgba(0,229,160,.2);border-radius:6px;padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.copy-banner-text{font-size:13px;color:var(--text2);line-height:1.5}
+.copy-banner-text strong{color:var(--green)}
+@media(max-width:600px){.grid2,.grid3{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}main{padding:1rem}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="logo"><div class="logo-dot"></div>SIM_CLUB // EE_INTERVIEW</div>
+  <div class="header-right" id="header-status">READY</div>
+</header>
+<main>
+
+<!-- SCREEN: Setup -->
+<div class="screen active" id="s-setup">
+  <div class="section-label">New Interview</div>
+  <h1>Candidate info</h1>
+  <p class="subtitle">Fill in the details before you begin.</p>
+  <div class="card">
+    <div class="grid2">
+      <div class="field"><div class="field-label">Candidate name</div>
+        <input id="cand-name" list="candidate-list" placeholder="Type to search…" autocomplete="off"/>
+        <datalist id="candidate-list">
+          <option value="Adam Alzamaarekh">
+          <option value="Addis Engel">
+          <option value="Andrei Suditu">
+          <option value="Anthony Palmeri">
+          <option value="Arsh Hashmi">
+          <option value="Austin Schuvart">
+          <option value="Benjamin Fisher">
+          <option value="Benjamin Kornstein 'Benjy'">
+          <option value="Benjamin Kowanes 'Ben'">
+          <option value="Christina LaFiandra 'Chrissy'">
+          <option value="Daniel Chen">
+          <option value="Elizabeth Ruffy">
+          <option value="Elysian Lee">
+          <option value="Eric Li">
+          <option value="Esma Alosevic">
+          <option value="Ethan Wong">
+          <option value="Gianna Spasevski">
+          <option value="Henry Lau">
+          <option value="Justin Zheng">
+          <option value="Katelin Luu">
+          <option value="Kevin wang">
+          <option value="Kori Geiselhart">
+          <option value="Kyle Becker">
+          <option value="Lise Kubota">
+          <option value="Luan Vucetaj">
+          <option value="Lucas Lin">
+          <option value="Melany Robinson">
+          <option value="Mohammadhossein Abedinzadeh 'Moh'">
+          <option value="Nicholas Paronich 'Nick'">
+          <option value="Ryan Chen">
+          <option value="Ryan Zhang">
+          <option value="Ryen Cruz">
+          <option value="Seonwoo Kang 'Seon'">
+          <option value="Shamai Schneider">
+          <option value="Sophia Guan">
+          <option value="Tallyah Maimon">
+          <option value="Trevor Guttmann">
+          <option value="Treyson Thelusma">
+          <option value="William Belardo 'Lil willy'">
+          <option value="Yeva Kalish">
+        </datalist>
+      </div>
+      <div class="field"><div class="field-label">Date</div><input id="cand-date" type="date"/></div>
+    </div>
+    <div class="grid3">
+      <div class="field"><div class="field-label">Year level</div>
+        <select id="cand-year">
+          <option value="">Select…</option>
+          <option value="0">Freshman — Year 1</option>
+          <option value="1">Sophomore — Year 2</option>
+          <option value="2">Junior — Year 3</option>
+          <option value="3">Senior — Year 4</option>
+        </select>
+      </div>
+      <div class="field"><div class="field-label">Major</div>
+        <select id="cand-major">
+          <option value="">Select…</option>
+          <option>Electrical Engineering</option>
+          <option>Computer Engineering</option>
+          <option>Mechanical Engineering</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field"><div class="field-label">Sub-team interest</div>
+        <select id="cand-subteam">
+          <option value="">Select…</option>
+          <option>Electrical Components</option>
+          <option>Electrical Systems</option>
+          <option>Mechanical Components</option>
+          <option>Frame &amp; Instrument Panel</option>
+          <option>Software Dev</option>
+          <option>Software UX/UI</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><div class="field-label">Interviewer</div>
+      <select id="cand-interviewer">
+        <option value="">Select interviewer…</option>
+        <option>Avi Maltinsky</option>
+        <option>Ben Novo</option>
+        <option>David Kohn</option>
+        <option>Isabella</option>
+        <option>PJ Jelen</option>
+        <option>Riley Ferris</option>
+        <option>Stephen Liebold</option>
+        <option>Vansh Joishar</option>
+        <option>Yaakov Caroline</option>
+      </select>
+    </div>
+    <div style="margin-top:.5rem"><button class="btn-primary" onclick="startInterview()">Begin interview →</button></div>
+  </div>
+</div>
+
+<!-- SCREEN: Interview -->
+<div class="screen" id="s-interview">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem">
+    <div class="section-label" style="margin:0" id="int-label">Interview</div>
+    <span style="font-family:var(--mono);font-size:11px;color:var(--text3)" id="q-counter">1 / 6</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:16%"></div></div>
+  <div class="card">
+    <div class="q-meta">
+      <span class="q-num" id="q-num">Q1</span>
+      <span class="q-tag" id="q-tag">EE</span>
+    </div>
+    <div class="q-text" id="q-text"></div>
+    <div class="expected-toggle" onclick="toggleExpected(this)">
+      <span class="toggle-arrow">›</span>
+      <span class="toggle-label">Expected answer guidance</span>
+    </div>
+    <div class="expected-body" id="expected-body"></div>
+    <div class="score-label">Score</div>
+    <div class="stars" id="stars-row"></div>
+    <div class="field">
+      <div class="field-label">Response notes</div>
+      <textarea id="q-notes" placeholder="What the candidate said…"></textarea>
+    </div>
+    <div class="nav-row">
+      <button class="btn-sm btn-ghost" onclick="prevQ()" id="btn-prev">← Back</button>
+      <span class="nav-center" id="nav-center"></span>
+      <button class="btn-sm btn-primary" onclick="nextQ()" id="btn-next">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: Summary -->
+<div class="screen" id="s-summary">
+  <div class="section-label">Summary</div>
+  <h2 id="sum-title">Interview complete</h2>
+  <div class="metrics" id="metric-cards"></div>
+  <div class="copy-banner">
+    <div class="copy-banner-text"><strong>Ready to log?</strong> Set your decision, add final notes, then hit Copy Row and paste into the next empty row in your Google Sheet.</div>
+    <button class="btn-primary btn-sm" onclick="copyLog()" id="btn-copy">Copy row</button>
+  </div>
+  <div class="card card-sm">
+    <div class="decision-row">
+      <label>Decision:</label>
+      <select id="decision-select" onchange="buildCopyBox()">
+        <option>Pending</option><option>Accept</option><option>Waitlist</option><option>Decline</option>
+      </select>
+    </div>
+    <div id="q-breakdown"></div>
+  </div>
+  <div class="card card-sm">
+    <div class="field-label" style="margin-bottom:.6rem">Overall notes</div>
+    <textarea id="overall-notes" placeholder="General impressions, standout moments, concerns…" oninput="buildCopyBox()"></textarea>
+  </div>
+  <div class="card card-sm">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
+      <div class="field-label" style="margin:0">Row to paste into Google Sheet</div>
+      <button class="btn-sm" onclick="copyLog()" id="btn-copy2">Copy</button>
+    </div>
+    <div class="copy-box" id="copy-box"></div>
+    <div class="copy-hint">Columns: Name · Date · Year · Major · Sub-team · Interviewer · Q1–Q6 scores · Avg · Decision · Overall Notes · Q1 Note · Q2 Note · Q3 Note · Q4 Note · Q5 Note · Q6 Note</div>
+  </div>
+  <div style="margin-top:.5rem"><button class="btn-primary" onclick="newInterview()">New interview →</button></div>
+</div>
+
+</main>
+</div>
+
+<script>
+const QUESTIONS=[
+  [
+    {section:"Motivation",tag:"team",q:"Why do you want to join a flight simulator cockpit project? What do you hope to learn?",expected:["Shows genuine curiosity about electronics or aviation","Mentions specific skills they want to build (soldering, PCB, coding)","Enthusiasm and realistic expectations about teamwork"]},
+    {section:"EE Fundamentals",tag:"ee",q:"Explain Ohm's Law and use it: find the current if a 9 V battery powers a 470 Ω resistor.",expected:["V = IR, so I = V/R","I = 9 / 470 ≈ 19.1 mA","Can explain units (amps, ohms, volts)","Bonus: mentions power P = IV or P = V²/R"]},
+    {section:"EE Fundamentals",tag:"ee",q:"What is the difference between series and parallel resistor connections?",expected:["Series: R_total = R1 + R2 (same current, voltage splits)","Parallel: 1/R_total = 1/R1 + 1/R2 (same voltage, current splits)","Can give a real-world analogy or example"]},
+    {section:"PCB & Electronics",tag:"pcb",q:"What is a PCB and what do you think goes into designing one?",expected:["Printed Circuit Board — mechanically supports and electrically connects components","Mentions copper traces, solder, vias","Awareness of schematic → layout → fabrication flow","Bonus: names a PCB design tool (KiCad, Eagle, Altium)"]},
+    {section:"Teamwork",tag:"team",q:"Describe a time you worked on a team project. What was your role and what did you contribute?",expected:["Specific example (class project, hackathon, club)","Can articulate their individual contribution vs. team output","Shows communication, reliability, or initiative"]},
+    {section:"ME Basics",tag:"me",q:"What materials or manufacturing methods would you consider for a cockpit frame prototype? (ME: go deeper; EE: best effort.)",expected:["ME: 80/20 aluminum extrusion, welded steel, sheet metal, 3D printing","ME: considers weight, cost, machinability, joinability","EE: partial credit for any reasonable answer","All: recognizes it needs to be rigid and support mounted panels"]},
+  ],
+  [
+    {section:"Circuit Analysis",tag:"ee",q:"What does a voltage divider do and where would you use one in a circuit? Walk me through how it works conceptually.",expected:["Two resistors in series from supply to ground, output tapped between them","Output voltage is a fraction of input — ratio determined by the two resistor values","Use cases: scaling a sensor output, biasing a transistor, reading a potentiometer","Bonus: mentions that connecting a load changes the output (loading effect)","Bonus: knows that a lower R2 relative to R1 gives a lower output voltage"]},
+    {section:"Components",tag:"ee",q:"What is a decoupling capacitor? Where do you place it and why?",expected:["Placed close to IC power pins to filter high-frequency noise on the supply rail","Acts as a local charge reservoir for fast transient currents","Typical values: 100 nF ceramic + 10 µF bulk","Bonus: mentions ESR and parasitic inductance of traces"]},
+    {section:"PCB Design",tag:"pcb",q:"Walk me through designing a simple PCB — from schematic to ordering from a fab.",expected:["Schematic capture → assign footprints → PCB layout → DRC → generate Gerbers → upload to fab","Mentions ground plane, trace width for current, clearance rules","Names a tool (KiCad, Altium, Eagle)","Bonus: mentions design review or BOM generation"]},
+    {section:"PCB Design",tag:"pcb",q:"Why does trace width matter on a PCB, and how do you determine the right width?",expected:["Wider trace = lower resistance = handles more current without overheating","Uses IPC-2221 tables or online calculator (trace width vs. current vs. temp rise)","Mentions copper weight (oz/ft²)","Bonus: also considers impedance for high-speed signals"]},
+    {section:"Electronics Packaging",tag:"pcb",q:"How would you physically mount a PCB inside a cockpit panel? What mechanical factors matter?",expected:["Standoffs/screws to secure board, prevent shorts to enclosure","Considers vibration, connector accessibility, heat dissipation","Thinks about panel cutouts for displays, switches, connectors","Bonus: mentions EMI shielding or cable management"]},
+    {section:"ME Basics",tag:"me",q:"What is the difference between a tolerance and a fit in mechanical design, and why does it matter for an enclosure?",expected:["Tolerance: allowable dimensional variation (e.g., ±0.1 mm)","Fit: relationship between mating parts (clearance, interference, transition)","ME: references H7/g6 or similar standard fit designations","All: recognizes poor tolerances cause assembly problems or rattling panels"]},
+  ],
+  [
+    {section:"PCB Design",tag:"pcb",q:"Walk me through a PCB project you designed end-to-end. What were the toughest design decisions?",expected:["Structured narrative: problem → schematic → layout → testing → iteration","Identifies specific challenges (noise, space constraints, component selection)","Shows ownership — not just 'I helped' but 'I decided'","Bonus: discusses what they would do differently"]},
+    {section:"PCB Design",tag:"pcb",q:"What is a 4-layer PCB stackup and how do you assign signals to each layer?",expected:["Layer 1: signals; Layer 2: ground plane; Layer 3: power plane; Layer 4: signals","Ground plane under signal layers provides return path and reduces EMI","Keeps high-speed signals on outer layers with solid reference planes beneath","Bonus: discusses impedance control and dielectric thickness"]},
+    {section:"Signal Integrity & EMC",tag:"sys",q:"What are the main EMI/EMC challenges in a cockpit with mixed analog and digital electronics?",expected:["Digital switching noise coupling into analog sensor signals","Common-mode noise on long cable runs","Strategies: ground planes, separation of analog/digital domains, shielded cables, filtering","Bonus: mentions ferrite beads, star grounding, or chassis bonding"]},
+    {section:"Embedded Systems",tag:"ee",q:"Explain the difference between I2C, SPI, and UART. Give a use case for each.",expected:["UART: async, point-to-point, no clock line — GPS modules, debug console","I2C: sync, multi-device on 2 wires, address-based — sensors (IMU, temp)","SPI: sync, full-duplex, faster — displays, DACs, flash memory","Bonus: mentions pull-up resistors for I2C, or SPI modes (CPOL/CPHA)"]},
+    {section:"Packaging & CAD",tag:"pcb",q:"Describe how you would design a cockpit instrument panel as an integrated mechanical + electrical assembly.",expected:["Panel material (aluminum, acrylic), cutout layout for gauges/switches/displays","PCBs mounted behind panel on standoffs, connectors accessible from front","CAD model with PCB STEP files imported to verify fit","Wiring harness with labeled connectors; strain relief on cables","Bonus: mentions IPC standards, serviceability / maintenance access"]},
+    {section:"ME Basics",tag:"me",q:"Walk through how you would select and validate a structural member for the cockpit seat/frame.",expected:["ME: identify loads, calculate bending moment, select section","ME: verify using hand calcs or FEA (Von Mises vs. yield strength + safety factor)","ME: material selection (6061 Al vs. steel) based on weight, cost, weldability","EE: credit for identifying relevant loads and proposing conservative approach"]},
+  ],
+  [
+    {section:"Systems Architecture",tag:"sys",q:"How would you partition the cockpit into electrical subsystems and define the interfaces between them?",expected:["Clear subsystem breakdown: power, avionics I/O, display controller, sensor bus, comms to PC","Defines interface contracts: voltage levels, protocol, connector type","Considers modularity — each board replaceable independently","Bonus: mentions interface control document (ICD) or block diagram"]},
+    {section:"Power Systems",tag:"ee",q:"What power architecture would you design for a cockpit with 12 V, 5 V, and 3.3 V rails drawing mixed loads?",expected:["Single 12 V input, then point-of-load regulators","Switching regulators (buck) for efficiency on high-current rails","LDO for noise-sensitive analog or RF circuitry","Sequencing/soft-start; fusing per rail; bulk caps at entry","Bonus: power budget spreadsheet, derating, or hot-swap protection"]},
+    {section:"PCB Design",tag:"pcb",q:"Walk me through your design review process. What checklist items do you never skip before sending PCBs to fab?",expected:["Schematic review: decoupling on every IC, ESD protection, pull-ups, net connectivity","Layout review: DRC clean, ground plane continuity, trace width vs. current","BOM review: parts in stock, approved alternatives, correct footprints","Gerber review: open in viewer before submitting","Bonus: peer review, revision control, fab-specific DFM rules"]},
+    {section:"Electronics Packaging",tag:"pcb",q:"Design the cable harness strategy for the cockpit. What standards, connectors, and documentation would you use?",expected:["Connector family: D-Sub, Molex Micro-Fit, or JST — chosen for pin count, current, mating cycles","Harness drawing: from-to list, wire gauge, color coding, shield termination","IPC-620 workmanship standard for crimping and soldering","Labels at both ends; strain relief and routing clamps","Bonus: mil-spec connectors, automated harness design tools"]},
+    {section:"Leadership",tag:"team",q:"How would you structure the semester roadmap for the electrical team and keep junior members on track?",expected:["Phase-gate plan: requirements → design review → prototype → test → integration","Weekly check-ins; GitHub for schematic/firmware version control","Assign junior members to bounded tasks with clear acceptance criteria","Documentation standard: every board has a one-page spec sheet and test procedure","Bonus: risk register, design freeze date, retrospective process"]},
+    {section:"ME Basics",tag:"me",q:"Describe the EE/ME collaboration process when co-designing the instrument panel. What are the critical hand-off artifacts?",expected:["ME provides: panel STEP file with cutout locations and PCB mounting holes","EE provides: PCB STEP/DXF, connector envelope, thermal requirements","Joint review: clearance checks in CAD assembly, cable routing agreed on","Change management: panel mods after design freeze require sign-off from both leads","Bonus: tolerance analysis or interface control document"]},
+  ]
+];
+
+const YEAR_LABELS=["Freshman (Year 1)","Sophomore (Year 2)","Junior (Year 3)","Senior (Year 4)"];
+const TAG_COLORS={ee:"tag-ee",pcb:"tag-pcb",me:"tag-me",team:"tag-team",sys:"tag-sys"};
+const STAR_LABELS=["","None","Minimal","Adequate","Strong","Exceptional"];
+let state={qIdx:0,scores:[],notes:[],meta:{}};
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('header-status').textContent={'s-setup':'READY','s-interview':'LIVE','s-summary':'REVIEW'}[id]||'';
+}
+function startInterview(){
+  const name=document.getElementById('cand-name').value.trim();
+  const year=document.getElementById('cand-year').value;
+  if(!name||year===''){alert('Please enter candidate name and year level.');return;}
+  state.meta={name,year:parseInt(year),date:document.getElementById('cand-date').value||new Date().toISOString().slice(0,10),major:document.getElementById('cand-major').value||'',subteam:document.getElementById('cand-subteam').value||'',interviewer:document.getElementById('cand-interviewer').value||''};
+  state.scores=new Array(6).fill(0);
+  state.notes=new Array(6).fill('');
+  state.qIdx=0;
+  document.getElementById('int-label').textContent=YEAR_LABELS[state.meta.year];
+  renderQ();
+  showScreen('s-interview');
+}
+function renderQ(){
+  const qs=QUESTIONS[state.meta.year];
+  const q=qs[state.qIdx];
+  const total=qs.length;
+  document.getElementById('q-counter').textContent=(state.qIdx+1)+' / '+total;
+  document.getElementById('prog-fill').style.width=((state.qIdx+1)/total*100)+'%';
+  document.getElementById('q-num').textContent='Q'+(state.qIdx+1);
+  const tag=document.getElementById('q-tag');
+  tag.textContent=q.section;tag.className='q-tag '+(TAG_COLORS[q.tag]||'tag-ee');
+  document.getElementById('q-text').textContent=q.q;
+  const eb=document.getElementById('expected-body');
+  eb.innerHTML=q.expected.map(b=>`<div class="bullet">${b}</div>`).join('');
+  eb.classList.remove('open');
+  const arr=document.querySelector('.toggle-arrow');
+  if(arr)arr.classList.remove('open');
+  document.getElementById('q-notes').value=state.notes[state.qIdx]||'';
+  renderStars(state.scores[state.qIdx]||0);
+  document.getElementById('btn-prev').style.visibility=state.qIdx===0?'hidden':'visible';
+  document.getElementById('btn-next').textContent=state.qIdx===total-1?'Finish →':'Next →';
+  document.getElementById('nav-center').textContent=state.qIdx>0?(state.scores.slice(0,state.qIdx).filter(s=>s>0).length+' scored'):'';
+}
+function renderStars(active){
+  const row=document.getElementById('stars-row');row.innerHTML='';
+  for(let i=1;i<=5;i++){
+    const s=document.createElement('div');
+    s.className='star'+(active===i?' active':'');
+    s.innerHTML=`<span class="star-num">${i}</span><span class="star-desc">${STAR_LABELS[i]}</span>`;
+    const v=i;s.onclick=()=>setScore(v);row.appendChild(s);
+  }
+}
+function setScore(v){state.scores[state.qIdx]=v;renderStars(v);}
+function saveCurrentQ(){state.notes[state.qIdx]=document.getElementById('q-notes').value;}
+function toggleExpected(el){
+  const body=document.getElementById('expected-body');
+  body.classList.toggle('open');
+  el.querySelector('.toggle-arrow').classList.toggle('open');
+}
+function nextQ(){
+  saveCurrentQ();
+  const qs=QUESTIONS[state.meta.year];
+  if(state.qIdx<qs.length-1){state.qIdx++;renderQ();}else showSummary();
+}
+function prevQ(){saveCurrentQ();if(state.qIdx>0){state.qIdx--;renderQ();}}
+function showSummary(){
+  const scores=state.scores;
+  const filled=scores.filter(s=>s>0);
+  const avg=filled.length?(filled.reduce((a,b)=>a+b,0)/filled.length):0;
+  const qs=QUESTIONS[state.meta.year];
+  document.getElementById('sum-title').textContent=state.meta.name+' — '+YEAR_LABELS[state.meta.year];
+  document.getElementById('metric-cards').innerHTML=`
+    <div class="metric"><div class="metric-val accent">${avg.toFixed(2)}</div><div class="metric-lbl">Avg score</div></div>
+    <div class="metric"><div class="metric-val green">${Math.max(...scores)||'—'}</div><div class="metric-lbl">Highest Q</div></div>
+    <div class="metric"><div class="metric-val amber">${scores.filter(s=>s<=2&&s>0).length}</div><div class="metric-lbl">Weak answers</div></div>
+    <div class="metric"><div class="metric-val">${filled.length} / ${scores.length}</div><div class="metric-lbl">Qs scored</div></div>`;
+  document.getElementById('q-breakdown').innerHTML=qs.map((q,i)=>{
+    const s=scores[i]||0;
+    return`<div class="q-row"><div class="score-badge sb-${s}">${s||'—'}</div><div style="flex:1"><div class="q-row-section">${q.section}</div><div class="q-row-text">${q.q.slice(0,90)}${q.q.length>90?'…':''}</div>${state.notes[i]?`<div class="q-row-note">${state.notes[i].slice(0,120)}${state.notes[i].length>120?'…':''}</div>`:''}</div></div>`;
+  }).join('');
+  buildCopyBox();
+  showScreen('s-summary');
+}
+function buildCopyBox(){
+  const m=state.meta;
+  const qs=QUESTIONS[m.year];
+  const scores=state.scores.map(s=>s||'').join('\t');
+  const filled=state.scores.filter(s=>s>0);
+  const avg=filled.length?(filled.reduce((a,b)=>a+b,0)/filled.length).toFixed(2):'';
+  const decision=document.getElementById('decision-select')?.value||'Pending';
+  const overall=(document.getElementById('overall-notes')?.value||'').trim().replace(/\n/g,' ');
+  const qNotes=state.notes.map(n=>n.trim().replace(/\n/g,' ')).join('\t');
+  const row=[m.name,m.date,YEAR_LABELS[m.year],m.major,m.subteam,m.interviewer,scores,avg,decision,overall,qNotes].join('\t');
+  const box=document.getElementById('copy-box');if(box)box.textContent=row;
+}
+function copyLog(){
+  buildCopyBox();
+  const text=document.getElementById('copy-box').textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    ['btn-copy','btn-copy2'].forEach(id=>{const b=document.getElementById(id);if(b){const orig=b.textContent;b.textContent='Copied!';setTimeout(()=>b.textContent=orig,1600);}});
+  });
+}
+function newInterview(){
+  document.getElementById('cand-name').value='';
+  document.getElementById('cand-year').value='';
+  document.getElementById('cand-major').value='';
+  document.getElementById('cand-subteam').value='';
+  showScreen('s-setup');
+}
+document.getElementById('cand-date').value=new Date().toISOString().slice(0,10);
+</script>
+</body>
+</html>
